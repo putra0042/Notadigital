@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Nota & Invoice Profesional</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        .font-sans { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-grotesk { font-family: 'Space Grotesk', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        @media print {
+            body { background: white !important; padding: 0 !important; }
+            .no-print { display: none !important; }
+            .print-container { box-shadow: none !important; border: none !important; padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; }
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen font-sans antialiased p-4 sm:p-6 lg:p-8" x-data="receiptApp()">
+
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- KOLOM EDITOR (KIRI) -->
+        <div class="lg:col-span-5 space-y-6 no-print bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/80 p-6 rounded-3xl shadow-2xl">
+            <div class="flex justify-between items-center border-b border-zinc-800/80 pb-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Studio Nota Digital
+                    </h2>
+                    <p class="text-xs text-zinc-400 mt-0.5">Dilengkapi logo toko & ketentuan garansi.</p>
+                </div>
+                <span class="text-[11px] font-medium bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20">Live Sync</span>
+            </div>
+
+            <!-- Style Preset -->
+            <div class="space-y-2">
+                <label class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Format / Layout Nota</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <button @click="design.layout = 'modern'" class="py-2 px-3 text-xs font-medium rounded-xl border transition" :class="design.layout === 'modern' ? 'bg-zinc-800 border-emerald-500 text-white' : 'bg-zinc-950/40 border-zinc-800 text-zinc-400 hover:border-zinc-700'">Modern Clean</button>
+                    <button @click="design.layout = 'corporate'" class="py-2 px-3 text-xs font-medium rounded-xl border transition" :class="design.layout === 'corporate' ? 'bg-zinc-800 border-emerald-500 text-white' : 'bg-zinc-950/40 border-zinc-800 text-zinc-400 hover:border-zinc-700'">Corporate</button>
+                    <button @click="design.layout = 'thermal'" class="py-2 px-3 text-xs font-medium rounded-xl border transition" :class="design.layout === 'thermal' ? 'bg-zinc-800 border-emerald-500 text-white' : 'bg-zinc-950/40 border-zinc-800 text-zinc-400 hover:border-zinc-700'">Struk Kasir</button>
+                </div>
+            </div>
+
+            <!-- Warna & Aksen -->
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <div>
+                    <label class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5 block">Warna Aksen</label>
+                    <select x-model="design.accent" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-emerald-500 transition">
+                        <option value="emerald">Emerald Green</option>
+                        <option value="indigo">Deep Indigo</option>
+                        <option value="violet">Modern Violet</option>
+                        <option value="amber">Warm Amber</option>
+                        <option value="zinc">Monochrome Black</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5 block">Tipografi</label>
+                    <select x-model="design.font" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-emerald-500 transition">
+                        <option value="font-sans">Plus Jakarta Sans</option>
+                        <option value="font-grotesk">Space Grotesk</option>
+                        <option value="font-mono">JetBrains Mono</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Identitas Toko & Logo -->
+            <div class="space-y-3 pt-4 border-t border-zinc-800/80">
+                <h3 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Identitas Toko & Logo</h3>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" x-model="store.name" placeholder="Nama Toko" class="bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-emerald-500">
+                    <input type="text" x-model="store.phone" placeholder="No Telepon" class="bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-emerald-500">
+                </div>
+                <textarea x-model="store.address" rows="2" placeholder="Alamat Toko" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-emerald-500"></textarea>
+                
+                <!-- Input Logo -->
+                <div>
+                    <label class="text-[11px] text-zinc-400 block mb-1">Upload Logo Toko (File Gambar) atau Kosongkan untuk Inisial</label>
+                    <input type="file" @change="handleLogoUpload" accept="image/*" class="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-zinc-200 hover:file:bg-zinc-700 cursor-pointer">
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 pt-1">
+                    <input type="text" x-model="invoice.number" placeholder="No. Nota" class="bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-emerald-500">
+                    <input type="date" x-model="invoice.date" class="bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-emerald-500">
+                    <input type="text" x-model="invoice.status" placeholder="Status (Lunas)" class="bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-emerald-500">
+                </div>
+                <input type="text" x-model="customer.name" placeholder="Nama Pelanggan / Klien" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-emerald-500">
+            </div>
+
+            <!-- Daftar Item Produk & Barang Free -->
+            <div class="space-y-3 pt-4 border-t border-zinc-800/80">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Daftar Produk & Bonus Free</h3>
+                    <button @click="addItem" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-200 px-3 py-1.5 rounded-lg font-medium transition">+ Baris Baru</button>
+                </div>
+
+                <template x-for="(item, index) in items" :key="index">
+                    <div class="bg-zinc-950/40 p-3 rounded-xl border border-zinc-800/60 space-y-2">
+                        <div class="flex items-center gap-2">
+                            <input type="text" x-model="item.name" placeholder="Nama Barang / Bonus" class="flex-1 bg-transparent border-0 text-xs text-zinc-200 focus:outline-none">
+                            <input type="number" x-model.number="item.qty" placeholder="Qty" class="w-12 bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1 text-xs text-center text-zinc-200 focus:outline-none">
+                            <input type="number" x-model.number="item.price" placeholder="Harga" :disabled="item.isFree" class="w-24 bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1 text-xs text-right text-zinc-200 focus:outline-none disabled:opacity-40">
+                            <button @click="removeItem(index)" class="text-zinc-500 hover:text-rose-400 px-1 text-xs">✕</button>
+                        </div>
+                        <div class="flex items-center justify-between pt-1 border-t border-zinc-900 text-[11px]">
+                            <label class="flex items-center gap-2 cursor-pointer text-zinc-400 select-none">
+                                <input type="checkbox" x-model="item.isFree" @change="if(item.isFree) item.price = 0" class="rounded bg-zinc-900 border-zinc-700 text-emerald-500 focus:ring-0">
+                                Jadikan Barang Free (Gratis / Rp 0)
+                            </label>
+                            <span class="text-emerald-400 font-semibold" x-show="item.isFree">FREE ITEM</span>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Diskon, Catatan & Garansi -->
+            <div class="space-y-3 pt-4 border-t border-zinc-800/80">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[11px] text-zinc-400 block mb-1">Diskon (Rp)</label>
+                        <input type="number" x-model.number="financial.discount" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-1.5 text-xs text-zinc-200 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[11px] text-zinc-400 block mb-1">Nama Kasir / Penandatangan</label>
+                        <input type="text" x-model="invoice.cashier" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-1.5 text-xs text-zinc-200 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[11px] text-zinc-400 block mb-1">Catatan Nota</label>
+                    <textarea x-model="invoice.notes" rows="2" placeholder="Catatan kaki..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-200 focus:outline-none"></textarea>
+                </div>
+                <div>
+                    <label class="text-[11px] text-zinc-400 block mb-1">Ketentuan Garansi / Klaim</label>
+                    <textarea x-model="invoice.warranty" rows="2" placeholder="Contoh: Garansi servis berlaku 1 minggu dengan menunjukkan nota ini..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-200 focus:outline-none"></textarea>
+                </div>
+            </div>
+
+            <!-- Tombol Cetak -->
+            <button @click="window.print()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-semibold text-xs tracking-wide uppercase shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2">
+                <span>🖨️</span> Cetak / Simpan ke PDF
+            </button>
+        </div>
+
+        <!-- KOLOM PREVIEW NOTA (KANAN - ESTETIK & DINAMIS) -->
+        <div class="lg:col-span-7 flex justify-center">
+            <div class="print-container bg-white text-zinc-900 w-full p-8 sm:p-12 shadow-2xl rounded-2xl transition-all duration-300 relative overflow-hidden"
+                 :class="[getContainerWidthClass(), design.font]">
+                
+                <!-- Aksen Garis Atas Dinamis -->
+                <div class="absolute top-0 left-0 right-0 h-1.5" :class="getAccentBgClass()"></div>
+
+                <!-- LAYOUT 1: MODERN CLEAN / CORPORATE -->
+                <div class="space-y-8" x-show="design.layout !== 'thermal'">
+                    
+                    <!-- Header Nota (Logo & Info) -->
+                    <div class="flex justify-between items-start">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-3">
+                                <!-- Tampil Logo atau Inisial -->
+                                <template x-if="store.logo">
+                                    <img :src="store.logo" class="w-12 h-12 rounded-xl object-cover shadow-sm border border-zinc-100">
+                                </template>
+                                <template x-if="!store.logo">
+                                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-base shadow-sm" :class="getAccentBgClass()" x-text="store.name.charAt(0)"></div>
+                                </template>
+                                <div>
+                                    <h1 class="text-xl font-bold tracking-tight text-zinc-900" x-text="store.name"></h1>
+                                    <p class="text-xs text-zinc-500 whitespace-pre-line leading-relaxed" x-text="store.address"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right space-y-1">
+                            <span class="inline-block px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider" :class="getBadgeStyle()" x-text="invoice.status"></span>
+                            <p class="text-xs text-zinc-500 pt-1"><span class="font-semibold text-zinc-700">No:</span> <span x-text="invoice.number"></span></p>
+                            <p class="text-xs text-zinc-500"><span class="font-semibold text-zinc-700">Tanggal:</span> <span x-text="invoice.date"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- Bill To Section -->
+                    <div class="bg-zinc-50/80 p-4 rounded-xl border border-zinc-100 flex justify-between items-center text-xs">
+                        <div>
+                            <span class="text-zinc-400 font-medium block mb-0.5">Ditujukan Kepada:</span>
+                            <strong class="text-zinc-900 text-sm" x-text="customer.name || 'Pelanggan Umum'"></strong>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-zinc-400 font-medium block mb-0.5">Metode / Keterangan:</span>
+                            <strong class="text-zinc-900">Pembayaran Tunai</strong>
+                        </div>
+                    </div>
+
+                    <!-- Tabel Item -->
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-zinc-200 text-[11px] text-zinc-400 font-semibold uppercase tracking-wider">
+                                <th class="pb-3">Deskripsi Item</th>
+                                <th class="pb-3 text-center">Qty</th>
+                                <th class="pb-3 text-right">Harga Satuan</th>
+                                <th class="pb-3 text-right">Jumlah</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-zinc-100 text-xs">
+                            <template x-for="item in items">
+                                <tr>
+                                    <td class="py-3.5 text-zinc-800 font-medium">
+                                        <span x-text="item.name || 'Item belum diisi'"></span>
+                                        <span class="ml-2 inline-block bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded" x-show="item.isFree">FREE / BONUS</span>
+                                    </td>
+                                    <td class="py-3.5 text-center text-zinc-600" x-text="item.qty"></td>
+                                    <td class="py-3.5 text-right text-zinc-600">
+                                        <span x-show="!item.isFree" x-text="formatRupiah(item.price)"></span>
+                                        <span x-show="item.isFree" class="text-emerald-600 font-semibold">Rp 0</span>
+                                    </td>
+                                    <td class="py-3.5 text-right text-zinc-900 font-semibold">
+                                        <span x-show="!item.isFree" x-text="formatRupiah(item.qty * item.price)"></span>
+                                        <span x-show="item.isFree" class="text-emerald-600 font-semibold">FREE</span>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+
+                    <!-- Kalkulasi Total -->
+                    <div class="border-t border-zinc-200 pt-4 space-y-2 text-xs max-w-xs ml-auto">
+                        <div class="flex justify-between text-zinc-500">
+                            <span>Subtotal</span>
+                            <span class="font-medium text-zinc-800" x-text="formatRupiah(subtotal())"></span>
+                        </div>
+                        <div class="flex justify-between text-zinc-500" x-show="financial.discount > 0">
+                            <span>Potongan Diskon</span>
+                            <span class="font-medium text-rose-600" x-text="'- ' + formatRupiah(financial.discount)"></span>
+                        </div>
+                        <div class="flex justify-between text-sm font-bold text-zinc-900 border-t border-dashed border-zinc-200 pt-3">
+                            <span>Total Tagihan</span>
+                            <span class="text-base" :class="getAccentTextClass()" x-text="formatRupiah(grandTotal())"></span>
+                        </div>
+                    </div>
+
+                    <!-- Catatan, Garansi & Tanda Tangan -->
+                    <div class="border-t border-zinc-200 pt-6 grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
+                        <div class="space-y-3">
+                            <div x-show="invoice.notes">
+                                <p class="font-bold text-zinc-700 mb-0.5">Catatan:</p>
+                                <p class="text-zinc-500 italic leading-relaxed" x-text="invoice.notes"></p>
+                            </div>
+                            <div x-show="invoice.warranty">
+                                <p class="font-bold text-zinc-700 mb-0.5">Ketentuan Garansi:</p>
+                                <p class="text-zinc-500 leading-relaxed" x-text="invoice.warranty"></p>
+                            </div>
+                        </div>
+                        <div class="text-center flex flex-col items-end justify-end">
+                            <p class="text-zinc-400 mb-10">Hormat Kami,</p>
+                            <p class="font-bold text-zinc-800 border-b border-zinc-300 pb-1 min-w-[140px]" x-text="invoice.cashier"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LAYOUT 2: STRUK THERMAL KASIR -->
+                <div class="space-y-4 font-mono text-xs max-w-sm mx-auto" x-show="design.layout === 'thermal'">
+                    <div class="text-center space-y-1 border-b border-dashed border-zinc-300 pb-4">
+                        <template x-if="store.logo">
+                            <img :src="store.logo" class="w-10 h-10 rounded-lg mx-auto object-cover mb-2">
+                        </template>
+                        <h2 class="text-sm font-bold text-zinc-900 uppercase tracking-wider" x-text="store.name"></h2>
+                        <p class="text-[11px] text-zinc-500 whitespace-pre-line" x-text="store.address"></p>
+                        <p class="text-[11px] text-zinc-500" x-text="'Telp: ' + store.phone"></p>
+                    </div>
+
+                    <div class="border-b border-dashed border-zinc-300 pb-3 space-y-0.5 text-[11px] text-zinc-600">
+                        <div class="flex justify-between"><span>No Nota:</span> <span x-text="invoice.number"></span></div>
+                        <div class="flex justify-between"><span>Tanggal:</span> <span x-text="invoice.date"></span></div>
+                        <div class="flex justify-between"><span>Kasir:</span> <span x-text="invoice.cashier"></span></div>
+                        <div class="flex justify-between"><span>Pelanggan:</span> <span x-text="customer.name || 'Umum'"></span></div>
+                    </div>
+
+                    <div class="border-b border-dashed border-zinc-300 pb-3 space-y-2">
+                        <template x-for="item in items">
+                            <div>
+                                <div class="font-medium text-zinc-900 flex justify-between">
+                                    <span x-text="item.name"></span>
+                                    <span class="text-emerald-600 font-bold text-[10px]" x-show="item.isFree">[FREE]</span>
+                                </div>
+                                <div class="flex justify-between text-[11px] text-zinc-500">
+                                    <span x-text="item.qty + ' x ' + (item.isFree ? 'Rp 0 (Free)' : formatRupiah(item.price))"></span>
+                                    <span class="font-medium text-zinc-800" x-text="item.isFree ? 'Rp 0' : formatRupiah(item.qty * item.price)"></span>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="space-y-1 text-xs pt-1 border-b border-dashed border-zinc-300 pb-3">
+                        <div class="flex justify-between text-zinc-600"><span>Subtotal</span><span x-text="formatRupiah(subtotal())"></span></div>
+                        <div class="flex justify-between text-zinc-600" x-show="financial.discount > 0"><span>Diskon</span><span x-text="'- ' + formatRupiah(financial.discount)"></span></div>
+                        <div class="flex justify-between font-bold text-zinc-900 text-sm pt-1"><span>TOTAL</span><span x-text="formatRupiah(grandTotal())"></span></div>
+                    </div>
+
+                    <div class="text-center text-[11px] text-zinc-500 pt-2 space-y-1 border-b border-dashed border-zinc-300 pb-3" x-show="invoice.warranty">
+                        <p class="font-bold text-zinc-700">INFO GARANSI:</p>
+                        <p x-text="invoice.warranty"></p>
+                    </div>
+
+                    <div class="text-center text-[11px] text-zinc-500 pt-2 space-y-1">
+                        <p x-text="invoice.notes"></p>
+                        <p class="font-semibold text-zinc-800">*** TERIMA KASIH ***</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script Utama -->
+    <script>
+        function receiptApp() {
+            return {
+                design: {
+                    layout: 'modern',
+                    accent: 'emerald',
+                    font: 'font-sans'
+                },
+                store: {
+                    name: 'Kopi & Roti Senja',
+                    address: 'Jl. Melati Indah No. 12\nSidoarjo, Jawa Timur',
+                    phone: '0812-9988-7766',
+                    logo: null
+                },
+                invoice: {
+                    number: 'INV/2026/09/001',
+                    date: new Date().toISOString().split('T')[0],
+                    status: 'LUNAS',
+                    notes: 'Simpan nota ini sebagai bukti pembayaran yang sah.',
+                    warranty: 'Garansi servis/ganti suku cadang berlaku 7 hari sejak tanggal pembelian.',
+                    cashier: 'Rian Pratama'
+                },
+                customer: {
+                    name: 'Sarah Amalia'
+                },
+                items: [
+                    { name: 'Kopi Susu Gula Aren Signature', qty: 2, price: 22000, isFree: false },
+                    { name: 'Sticker Eksklusif Senja', qty: 1, price: 0, isFree: true }
+                ],
+                financial: {
+                    discount: 5000
+                },
+                handleLogoUpload(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.store.logo = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                },
+                addItem() {
+                    this.items.push({ name: '', qty: 1, price: 0, isFree: false });
+                },
+                removeItem(index) {
+                    if(this.items.length > 1) this.items.splice(index, 1);
+                },
+                subtotal() {
+                    return this.items.reduce((acc, item) => acc + (item.isFree ? 0 : (item.qty * item.price)), 0);
+                },
+                grandTotal() {
+                    let total = this.subtotal() - this.financial.discount;
+                    return total > 0 ? total : 0;
+                },
+                formatRupiah(val) {
+                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
+                },
+                getContainerWidthClass() {
+                    if (this.design.layout === 'thermal') return 'max-w-xs';
+                    return this.design.layout === 'corporate' ? 'max-w-3xl' : 'max-w-xl';
+                },
+                getAccentBgClass() {
+                    switch(this.design.accent) {
+                        case 'indigo': return 'bg-indigo-600';
+                        case 'violet': return 'bg-violet-600';
+                        case 'amber': return 'bg-amber-600';
+                        case 'zinc': return 'bg-zinc-900';
+                        default: return 'bg-emerald-600';
+                    }
+                },
+                getAccentTextClass() {
+                    switch(this.design.accent) {
+                        case 'indigo': return 'text-indigo-600';
+                        case 'violet': return 'text-violet-600';
+                        case 'amber': return 'text-amber-600';
+                        case 'zinc': return 'text-zinc-900';
+                        default: return 'text-emerald-600';
+                    }
+                },
+                getBadgeStyle() {
+                    switch(this.design.accent) {
+                        case 'indigo': return 'bg-indigo-50 text-indigo-700';
+                        case 'violet': return 'bg-violet-50 text-violet-700';
+                        case 'amber': return 'bg-amber-50 text-amber-700';
+                        case 'zinc': return 'bg-zinc-100 text-zinc-900';
+                        default: return 'bg-emerald-50 text-emerald-700';
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
